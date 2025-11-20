@@ -634,11 +634,6 @@ int main(int argc, char* argv[])
         g_usb_busnum = (unsigned char)r;
     }
 
-    if (OpenUSB() == 0)
-        iExitCode = EXCODE_FAIL_USB;
-
-    LeaveStandaloneMode(0);
-    QueryBoard(0);
 
     while ((c = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
         switch (c) {
@@ -870,6 +865,13 @@ int main(int argc, char* argv[])
             break;
         }
     }
+
+    if (OpenUSB() == 0)
+        iExitCode = EXCODE_FAIL_USB;
+
+    LeaveStandaloneMode(0);
+    QueryBoard(0);
+
 
     int dev_cnt = get_usb_dev_cnt();
 
@@ -1374,7 +1376,7 @@ void FillNANDContext(void)
 
 int Handler(void)
 {
-    if (Is_usbworking(0) == true) {
+    if (Is_usbworking(g_uiDevNum-1) == true) {
 #if 0
         if(m_vm.count("fix-device"))
         {
@@ -1395,7 +1397,7 @@ int Handler(void)
         }
 
     } else {
-        printf("Error: Programmers are not connected.\n");
+        printf("Error: dpcmd.d Programmers are not connected.\n");
         return EXCODE_FAIL_OTHERS;
     }
 
@@ -1506,7 +1508,7 @@ void CloseProject(void)
 bool DetectChip(void)
 {
     int dev_cnt = get_usb_dev_cnt();
-    g_ChipInfo = GetFirstDetectionMatch(strTypeName, 0);
+    g_ChipInfo = GetFirstDetectionMatch(strTypeName, g_uiDevNum - 1);
     if (g_uiDevNum == 0) {
         for (int i = 0; i < dev_cnt; i++) {
             if (!Is_usbworking(i)) {
